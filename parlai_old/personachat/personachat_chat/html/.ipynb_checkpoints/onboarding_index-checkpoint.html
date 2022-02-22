@@ -1,0 +1,777 @@
+{% extends "core.html" %}
+{% block main_pane %}
+<style>
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+#container {
+  margin-top: 5px;
+	display:flex;
+  justify-content: space-between;
+  width: 300px;
+  height: 50px;
+}
+
+#enter_code {
+	width: 100px;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #5186EE;
+  border: 1px solid #5186EE;
+  margin-left: 20px;
+}
+
+#enter_code:hover {
+	opacity: .5;
+}
+
+</style>
+
+<div id="main-pane" style="width: 100%; height: {{frame_height}}px; background-color: #dff0d8; padding: 30px; overflow:scroll;">
+<span id="task-persona" style="font-size: 16px"></span>
+<div id="timeout-text" style="display: none">You haven't submitted the survey in too long. Thus this HIT has been expired and you have been considered disconnected.</div>
+<div id="container">
+  <input type="submit" id="enter_code" value="Submit" onclick="check_input()">
+  <div id="response-type-text-input" class="response-type-module" style="float: left;">
+      <div style="height: 50px; width: 100%; display: block; float: left; ">
+          <button class="btn btn-primary" style="display: none; width: 230px; height: 100%; font-size: 16px; float: left; margin-left: 10px; padding: 0px;" id="id_send_msg_button" onclick="hide_ready_button()">I am ready, continue</button>
+      </div>
+  </div>
+</div>
+<div id="response-type-waiting" class="response-type-module" style="height: 50px; width: 100%; display: block; float: left; ">
+    <span id="waiting" style="font-size: 16pt; padding-top: 30px; margin-right: 15px">Now waiting for another worker to join the chat...</span>
+</div>
+</div>
+<div id="bottom-pane" style="width: 100%; background-color: #eee;">
+    <div id="response-type-idle" class="response-type-module" style="display:none">
+    </div>
+    <div id="response-type-done" class="response-type-module" style="padding-left: 35px; padding-top: 30px; padding-bottom: 30px; padding-right: 35px; float: left; display:none">
+        <span id="disconnect" style="font-size: 14pt;margin-right: 15px"></span>
+        <button id="done-button" type="button" class="btn btn-primary btn-lg">
+            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Done with this HIT
+        </button>
+    </div>
+    <div id="response-type-inactive" class="response-type-module" style="padding-left: 35px; padding-top: 30px; padding-bottom: 30px; padding-right: 35px; float: left">
+        <span id="inactive" style="font-size: 16px"></span>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script type="text/javascript">
+  var pre_task_survey_done = false; // global bool for survey
+  var old_msg_function = handle_new_message
+  handle_new_message = function(new_message_id, message) {
+    if(message.text === undefined) {
+      $("div#response-type-waiting").css("display", "");
+      return
+    }
+    old_msg_function.apply(old_msg_function, [new_message_id, message])
+    var message_text = message.text.replace(/(?:\r\n|\r|\n)/g, '<br />');
+    if ("show_persona" in message) {
+        document.getElementById("id_send_msg_button").disabled = true;
+        $("span#task-persona").html('<span style="font-size:20px;"><b>PRE-TASK SURVEY</b></span>'  +
+                                    '<br><br>' +
+                                    'Please complete this survey before you begin the task. <b>You will be qualified for the base payment ONCE you are successfully submit the pre-task survey. This is because the research team cannot use your incomplete data. Please do not email us if you were never matched with a partner-- we have no control over this.</b><br><br>Estimated time to complete is 4 minutes.' +
+                                    '<br><br>' +
+                                    '1. Here are a number of characteristics that may or may not apply to you. For example, do you agree that you are someone who likes to spend time with others? Please select an option next to each statement to indicate the extent to which you agree or disagree with that statement. <u>I am someone who...</u>' +
+                                    '<br><br>' +
+                                    '<table>' +
+                                    '<tr>' +
+                                      '<th></th>' +
+                                      '<th>Disagree strongly</th>' +
+                                      '<th>Disagree a little</th>' +
+                                      '<th>Neutral; no opinion</th>' +
+                                      '<th>Agree a little</th>' +
+                                      '<th>Agree strongly</th>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Feel comfortable around people.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_1" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_1" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_1" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_1" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_1" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Start conversations.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_2" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_2" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_2" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_2" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_2" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Don\'t mind being the center of attention.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_3" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_3" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_3" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_3" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_3" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Have little to say.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_4" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_4" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_4" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_4" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_4" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Don\'t like to draw attention to myself.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_5" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_5" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_5" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_5" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_5" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Am interested in people.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_6" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_6" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_6" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_6" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_6" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Sympathize with others\' feelings.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_7" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_7" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_7" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_7" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_7" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Take time out for others.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_8" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_8" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_8" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_8" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_8" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Am not really interested in others.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_9" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_9" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_9" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_9" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_9" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Feel little concern for others.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_10" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_10" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_10" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_10" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_10" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Pay attention to details.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_11" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_11" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_11" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_11" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_11" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Like order.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_12" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_12" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_12" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_12" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_12" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Am exacting in my work.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_13" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_13" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_13" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_13" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_13" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Often forget to put things back in their proper place.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_14" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_14" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_14" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_14" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_14" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Shirk my duties.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_15" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_15" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_15" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_15" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_15" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Am relaxed most of the time.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_16" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_16" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_16" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_16" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_16" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Get stressed out easily.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_17" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_17" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_17" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_17" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_17" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Worry about things.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_18" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_18" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_18" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_18" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_18" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Have frequent mood swings.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_19" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_19" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_19" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_19" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_19" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Get irritated easily.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_20" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_20" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_20" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_20" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_20" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Have a vivid imagination.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_21" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_21" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_21" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_21" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_21" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Am quick to understand things.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_22" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_22" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_22" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_22" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_22" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Use difficult words.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_23" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_23" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_23" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_23" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_23" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Spend time reflecting on things.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_24" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_24" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_24" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_24" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_24" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Have difficulty understanding abstract ideas.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_25" value="Disagree strongly"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_25" value="Disagree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_25" value="Neutral; no opinion"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_25" value="Agree a little"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_1_25" value="Agree strongly"><br></td>' +
+                                    '</tr>' +
+                                    '</table>' +
+                                    '<br><br>' +
+                                    '2. When you decide whether something is right or wrong, to what extent are the following considerations relevant to your thinking?' +
+                                    '<br><br>' +
+                                    '<table>' +
+                                    '<tr>' +
+                                      '<th></th>' +
+                                      '<th>Not at all relevant</th>' +
+                                      '<th>Not very relevant</th>' +
+                                      '<th>Slightly relevant</th>' +
+                                      '<th>Somewhat relevant</th>' +
+                                      '<th>Very relevant</th>' +
+                                      '<th>Extremely relevant</th>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone suffered emotionally.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_1" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_1" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_1" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_1" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_1" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_1" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not some people were treated differently than others.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_2" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_2" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_2" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_2" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_2" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_2" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone’s action showed love for his or her country.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_3" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_3" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_3" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_3" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_3" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_3" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone showed a lack of respect for authority.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_4" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_4" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_4" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_4" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_4" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_4" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone violated standards of purity and decency.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_5" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_5" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_5" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_5" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_5" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_5" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone cared for someone weak or vulnerable.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_6" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_6" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_6" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_6" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_6" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_6" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone conformed to the traditions of society.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_7" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_7" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_7" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_7" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_7" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_7" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone was cruel.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_8" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_8" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_8" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_8" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_8" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_8" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone was denied his or her rights.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_9" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_9" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_9" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_9" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_9" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_9" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not someone acted in a way that God would approve of.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_10" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_10" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_10" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_10" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_10" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_10" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Whether or not everyone was free to do as they wanted.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_11" value="Not at all relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_11" value="Not very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_11" value="Slightly relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_11" value="Somewhat relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_11" value="Very relevant"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_2_11" value="Extremely relevant"><br></td>' +
+                                    '</tr>' +
+                                    '</table>' +
+                                    '<br><br>' +
+                                    '3. Please read the following sentences and indicate your agreement or disagreement.' +
+                                    '<br><br>' +
+                                    '<table>' +
+                                    '<tr>' +
+                                      '<th></th>' +
+                                      '<th>Strongly disagree</th>' +
+                                      '<th>Moderately disagree</th>' +
+                                      '<th>Slightly disagree</th>' +
+                                      '<th>Slightly agree</th>' +
+                                      '<th>Moderately agree</th>' +
+                                      '<th>Strongly agree</th>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Compassion for those who are suffering is the most crucial virtue.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_1" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_1" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_1" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_1" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_1" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_1" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>When the government makes laws, the number one principle should be ensuring that everyone is treated fairly.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_2" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_2" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_2" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_2" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_2" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_2" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Respect for authority is something all children need to learn.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_3" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_3" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_3" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_3" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_3" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_3" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It is better to do good than to do bad.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_4" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_4" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_4" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_4" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_4" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_4" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Justice is the most important requirement for a society.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_5" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_5" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_5" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_5" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_5" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_5" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>People should be loyal to their family members, even when they have done something wrong.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_6" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_6" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_6" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_6" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_6" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_6" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Men and women each have different roles to play in society.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_7" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_7" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_7" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_7" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_7" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_7" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It can never be right to kill a human being.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_8" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_8" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_8" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_8" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_8" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_8" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It is more important to be a team player than to express oneself.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_9" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_9" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_9" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_9" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_9" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_9" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>If I were a soldier and disagreed with my commanding officer’s orders, I would obey anyway because that is my duty.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_10" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_10" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_10" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_10" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_10" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_10" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Chastity is an important and valuable virtue.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_11" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_11" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_11" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_11" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_11" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_11" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>I think everyone should be free to do as they choose, so long as they don\'t infringe upon the equal freedom of others.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_12" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_12" value="Moderately disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_12" value="Slightly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_12" value="Slightly agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_12" value="Moderately agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_3_12" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '</table>' +
+                                    '<br><br>' +
+                                    '4. Here we briefly describe some people. Please read each description and think about how much each person is or is not like you. Select the response option that shows <u>how much the person in the description is like you.</u>' +
+                                    '<br><br>' +
+                                    '<table>' +
+                                    '<tr>' +
+                                      '<th></th>' +
+                                      '<th>Very much like me</th>' +
+                                      '<th>Like me</th>' +
+                                      '<th>Somewhat like me</th>' +
+                                      '<th>A little like me</th>' +
+                                      '<th>Not like me</th>' +
+                                      '<th>Not like me at all</th>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>He/she believes that people should do what they’re told. He/she thinks people should follow rules at all times, even when no one is watching.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_1" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_1" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_1" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_1" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_1" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_1" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Tradition is important to him/her. He/she tries to follow the customs handed down by his/her religion or his/her family.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_2" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_2" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_2" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_2" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_2" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_2" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It’s very important to him/her to help the people around him/her. He/she wants to care for their well-being.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_3" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_3" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_3" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_3" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_3" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_3" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>He/she thinks it is important that every person in the world should be treated equally. He/she believes everyone should have equal opportunities in life.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_4" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_4" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_4" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_4" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_4" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_4" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It is important to him/her to make his/her own decisions about what he/she does. He/she likes to be free and not depend on others.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_5" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_5" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_5" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_5" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_5" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_5" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>He/she likes surprises and is always looking for new things to do. He/she thinks it is important to do lots of different things in life.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_6" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_6" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_6" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_6" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_6" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_6" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Having a good time is important to him/her. He/she likes to “spoil” himself/her.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_7" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_7" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_7" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_7" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_7" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_7" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>Being very successful is important to him/her. He/she hopes people will recognize his/her achievements.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_8" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_8" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_8" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_8" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_8" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_8" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It is important to him/her to get respect from others. He/she wants people to do what he/she says.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_9" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_9" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_9" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_9" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_9" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_9" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It is important to him/her to live in secure surroundings. He/she avoids anything that might endanger his/her safety.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_10" value="Very much like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_10" value="Like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_10" value="Somewhat like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_10" value="A little like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_10" value="Not like me"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_4_10" value="Not like me at all"><br></td>' +
+                                    '</tr>' +
+                                    '</table>' +
+                                    '<br><br>' +
+                                    '5. Please rate the extent to which you agree or disagree with the following statements.' +
+                                    '<br><br>' +
+                                    '<table>' +
+                                    '<tr>' +
+                                      '<th></th>' +
+                                      '<th>Strongly disagree</th>' +
+                                      '<th>Disagree</th>' +
+                                      '<th>Neither disagree or agree</th>' +
+                                      '<th>Agree</th>' +
+                                      '<th>Strongly agree</th>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>I am willing to stand up for what I believe, even if I lose some friends as a result.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_1" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_1" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_1" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_1" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_1" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>It is sometimes best to just tell people what they want to hear.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_2" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_2" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_2" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_2" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_2" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>I sometimes start disagreements just to see what will happen.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_3" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_3" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_3" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_3" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_3" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>People would consider me a stubborn person.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_4" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_4" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_4" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_4" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_5_4" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '</table>' +
+                                    '<br><br>' +
+                                    '6. The following questions relate to how you make decisions. There are no “right” or “wrong” answers, so please state your opinion as honestly as possible. Using the scale below, please indicate the extent to which you agree or disagree with the statements. <u>Describe how you are now, not as you wish to be in the future.</u>' +
+                                    '<br><br>' +
+                                    '<table>' +
+                                    '<tr>' +
+                                      '<th></th>' +
+                                      '<th>Strongly disagree</th>' +
+                                      '<th>Disagree</th>' +
+                                      '<th>Neither disagree or agree</th>' +
+                                      '<th>Agree</th>' +
+                                      '<th>Strongly agree</th>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>I prefer to gather all the necessary information before committing to a decision.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_1" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_1" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_1" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_1" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_1" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>In decision making, I take time to contemplate the pros/cons or risks/benefits of a situation.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_2" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_2" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_2" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_2" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_2" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>When making decisions, I rely mainly on my gut feelings.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_3" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_3" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_3" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_3" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_3" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '<tr>' +
+                                      '<td>I weigh feelings more than analysis in making decisions.</td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_4" value="Strongly disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_4" value="Disagree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_4" value="Neither disagree or agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_4" value="Agree"><br></td>' +
+                                      '<td><input type="checkbox" class="pre_task_survey" name="pre_6_4" value="Strongly agree"><br></td>' +
+                                    '</tr>' +
+                                    '</table>' +
+                                    '<br><br>'
+        );
+        window.setTimeout(function(){$('#id_send_msg_button')}, 3000);
+      }
+
+      // check only one box per group
+      $('input[type="checkbox"]').on('change', function() {
+        $('input[name="' + this.name + '"]').not(this).prop('checked', false);
+      });
+
+      // check if all boxes are checked
+      $("input[type='checkbox'].pre_task_survey").change(function(){
+      var p = $("input[type='checkbox'].pre_task_survey");
+
+      if(p.filter(":checked").length == 1){ // 66 survey questions
+          pre_task_survey_done = true;
+      }
+      });
+  }
+
+  function check_input() {
+    if (pre_task_survey_done == true) {
+      document.getElementById("id_send_msg_button").disabled = false;
+      document.getElementById("id_send_msg_button").style.display = "block";
+      document.getElementById("enter_code").style.display = "none";
+    } else {
+      alert('Please finish the survey before you continue.');
+    }
+  }
+
+  function hide_ready_button() {
+    document.getElementById("container").style.display = "none";
+    // moved to core.html line 763
+  }
+
+  function window_resize() {
+  }
+
+  $(window).resize(window_resize);
+
+  function scroll_conversation_to_bottom() {}
+</script>
+{% endblock %}

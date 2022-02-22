@@ -1,0 +1,640 @@
+{% extends "core.html" %}
+
+{% block left_pane %}
+<style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+#donation_input {
+  width: 80px;
+}
+#donation_input[type=text] {
+  padding: 12px 10px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #ff9900;
+  border: 3px solid #ff9900;
+}
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 60px;
+  width: 450px;
+}
+#donation_info {
+  font-family: sans-serif;
+  font-size: 14px;
+  text-align: center;
+  padding: 12px 10px;
+  border: 3px solid #EE7600;
+  border-radius: 15px;
+  width: 170px;
+  color: white;
+  background-color: #EE7600;
+}
+#donation_note {
+	width: 300px;
+  margin: 10px;
+  margin-left: 190px;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+#donation_submit{
+  background-color: #ff9900;
+  border: none;
+  color: white;
+  padding: 15px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 15px;
+}
+#donation_submit:hover{
+  opacity: 0.6;
+}
+#enter_code {
+	width: 100px;
+  height: 50px;
+  font-size: 20px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 10px;
+  background-color: #5186EE;
+  border: 1px solid #5186EE;
+  margin-left: 20px;
+}
+#enter_code:hover {
+	opacity: .5;
+}
+#done-button{
+  margin: 10px;
+}
+</style>
+
+  <div id="left-pane" class="col-xs-4" style="height: 710px; background-color: #dff0d8; overflow: scroll">
+    <h1>Live Chat</h1>
+      <div id="left-top-pane" style="">
+        <hr style="border-top: 1px solid #555" />
+      </div>
+      <div id="left-bottom-pane" style="">
+          <span id="task-persona" style="font-size: 16px;">
+          </span>
+      </div>
+  </div>
+{% endblock %}
+{% block right_pane %}
+<div id="right-pane" style="min-height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+    <div id="right-top-pane" style="width: 100%; height: 570px; padding-top: 60px; padding-left: 20px; padding-right: 20px; padding-bottom: 20px; overflow:scroll; ">
+        <div id="message_thread" style="width: 100%">
+        </div>
+        <div id="waiting-for-message" class="row" style="margin-left: 0; margin-right: 0; display: none">
+            <div class="alert alert-warning" role="alert" style="float: left; display:table; background-color: #fff">
+                <div id="hourglass" style="margin-top: -1px; margin-right: 5px; display: inline; float: left;">
+                    <?xml version="1.0" encoding="utf-8"?><svg width='25px' height='25px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="uil-hourglass"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><g><path fill="none" stroke="#007282" stroke-width="5" stroke-miterlimit="10" d="M58.4,51.7c-0.9-0.9-1.4-2-1.4-2.3s0.5-0.4,1.4-1.4 C70.8,43.8,79.8,30.5,80,15.5H70H30H20c0.2,15,9.2,28.1,21.6,32.3c0.9,0.9,1.4,1.2,1.4,1.5s-0.5,1.6-1.4,2.5 C29.2,56.1,20.2,69.5,20,85.5h10h40h10C79.8,69.5,70.8,55.9,58.4,51.7z" class="glass"></path><clipPath id="uil-hourglass-clip1"><rect x="15" y="20" width="70" height="25" class="clip"><animate attributeName="height" from="25" to="0" dur="1.5s" repeatCount="indefinite" values="25;0;0" keyTimes="0;0.5;1"></animate><animate attributeName="y" from="20" to="45" dur="1.5s" repeatCount="indefinite" values="20;45;45" keyTimes="0;0.5;1"></animate></rect></clipPath><clipPath id="uil-hourglass-clip2"><rect x="15" y="55" width="70" height="25" class="clip"><animate attributeName="height" from="0" to="25" dur="1.5s" repeatCount="indefinite" values="0;25;25" keyTimes="0;0.5;1"></animate><animate attributeName="y" from="80" to="55" dur="1.5s" repeatCount="indefinite" values="80;55;55" keyTimes="0;0.5;1"></animate></rect></clipPath><path d="M29,23c3.1,11.4,11.3,19.5,21,19.5S67.9,34.4,71,23H29z" clip-path="url(#uil-hourglass-clip1)" fill="#ffab00" class="sand"></path><path d="M71.6,78c-3-11.6-11.5-20-21.5-20s-18.5,8.4-21.5,20H71.6z" clip-path="url(#uil-hourglass-clip2)" fill="#ffab00" class="sand"></path><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="180 50 50" repeatCount="indefinite" dur="1.5s" values="0 50 50;0 50 50;180 50 50" keyTimes="0;0.7;1"></animateTransform></g></svg>
+                </div>
+                <span style="font-size: 16px">Waiting for the next person to speak...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="right-bottom-pane" style="width: 100%; background-color: #eee; overflow: scroll">
+        <div id="survey-text" style="display:none; height: 540px; overflow: scroll">
+          <span style="font-size:20px;"><b>POST-TASK SURVEY</b></span>
+          <br><br>
+          Please submit this survey to complete the task. Estimated time to complete is 4 minutes.
+          <br><br>
+          1. What is your age?
+          <input type="text" class="post_task_survey" name="post_1_1" id="age"><br><br>
+          2. Are you a male or female?<br>
+          <input type="radio" class="post_task_survey" name="post_2_1" value="Male"> Male<br>
+          <input type="radio" class="post_task_survey" name="post_2_1" value="Female"> Female<br>
+          <input type="radio" class="post_task_survey" name="post_2_1" value="Other"> Other<br><br>
+          3. Which of the following describes your race/ethnicity?<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="Asian/Asian American"> Asian/Asian American<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="Black/African American"> Black/African American<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="White/Caucasian"> White/Caucasian<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="Hispanic/Latino"> Hispanic/Latino<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="Indian subcontinent"> Indian subcontinent<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="Native American/American Indian"> Native American/American Indian<br>
+          <input type="radio" class="post_task_survey" name="post_3_1" value="Other">Other<br><br>
+          4. What is the highest level of school you have completed or the highest degree you have received?<br>
+          <input type="radio" class="post_task_survey" name="post_4_1" value="High school incomplete or less"> High school incomplete or less<br>
+          <input type="radio" class="post_task_survey" name="post_4_1" value="High school graduate or GED (includes technical/vocational training that doesn’t count towards college credit)"> High school graduate or GED (includes technical/vocational training that doesn’t count towards college credit)<br>
+          <input type="radio" class="post_task_survey" name="post_4_1" value="Some college (some community college, associate’s degree)"> Some college (some community college, associate’s degree)<br>
+          <input type="radio" class="post_task_survey" name="post_4_1" value="Four year college degree/bachelor’s degree"> Four year college degree/bachelor’s degree<br>
+          <input type="radio" class="post_task_survey" name="post_4_1" value="Some postgraduate or professional schooling, no postgraduate degree"> Some postgraduate or professional schooling, no postgraduate degree<br>
+          <input type="radio" class="post_task_survey" name="post_4_1" value="Postgraduate or professional degree, including master’s, doctorate, medical or law degree"> Postgraduate or professional degree, including master’s, doctorate, medical or law degree<br><br>
+          5. Which of these best describes you?<br>
+          <input type="radio" class="post_task_survey" name="post_5_1" value="Married"> Married<br>
+          <input type="radio" class="post_task_survey" name="post_5_1" value="Living with partner"> Living with partner<br>
+          <input type="radio" class="post_task_survey" name="post_5_1" value="Divorced"> Divorced<br>
+          <input type="radio" class="post_task_survey" name="post_5_1" value="Separated"> Separated<br>
+          <input type="radio" class="post_task_survey" name="post_5_1" value="Widowed"> Widowed<br>
+          <input type="radio" class="post_task_survey" name="post_5_1" value="Other"> Other<br><br>
+          6. Are you currently…?<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Employed for wages"> Employed for wages<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Self-employed"> Self-employed<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Out of work and looking for work"> Out of work and looking for work<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Out of work but not looking for work"> Out of work but not looking for work<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="A homemaker"> A homemaker<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="A student"> A student<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Military"> Military<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Retired"> Retired<br>
+          <input type="radio" class="post_task_survey" name="post_6_1" value="Unable to work"> Unable to work<br><br>
+          7. Last year, that is in 2017, what was your total family income from all sources, before taxes?<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="Less than $10,000"> Less than $10,000<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$10,000 to $19,999"> $10,000 to $19,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$20,000 to $29,999"> $20,000 to $29,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$30,000 to $39,999"> $30,000 to $39,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$40,000 to $49,999"> $40,000 to $49,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$50,000 to $59,999"> $50,000 to $59,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$60,000 to $69,999"> $60,000 to $69,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$70,000 to $79,999"> $70,000 to $79,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$80,000 to $89,999"> $80,000 to $89,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$90,000 to $99,999"> $90,000 to $99,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$100,000 to $149,999"> $100,000 to $149,999<br>
+          <input type="radio" class="post_task_survey" name="post_7_1" value="$150,000 or more"> $150,000 or more<br><br>
+          8. What is your present religion, if any?<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Protestant (Baptist, Methodist, Non-denominational, etc.)"> Protestant (Baptist, Methodist, Non-denominational, etc.)<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Roman Catholic"> Roman Catholic<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Mormon (Church of Jesus Christ of Latter-day Saints or LDS)"> Mormon (Church of Jesus Christ of Latter-day Saints or LDS)<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Orthodox (Greek, Russian, or some other Orthodox church)"> Orthodox (Greek, Russian, or some other Orthodox church)<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Jewish"> Jewish<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Muslim"> Muslim<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Buddhist"> Buddhist<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Hindu"> Hindu<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Atheist">  Atheist<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Agnostic"> Agnostic<br>
+          <input type="radio" class="post_task_survey" name="post_8_1" value="Other"> Other<br><br>
+          9. In general, would you describe your political views as…?<br>
+          <input type="radio" class="post_task_survey" name="post_9_1" value="Very Conservative"> Very Conservative<br>
+          <input type="radio" class="post_task_survey" name="post_9_1" value="Conservative"> Conservative<br>
+          <input type="radio" class="post_task_survey" name="post_9_1" value="Moderate"> Moderate<br>
+          <input type="radio" class="post_task_survey" name="post_9_1" value="Liberal"> Liberal<br>
+          <input type="radio" class="post_task_survey" name="post_9_1" value="Very Liberal"> Very Liberal<br><br>
+          10. How positive do you feel towards your conversation partner?<br>
+          <input type="radio" class="post_task_survey" name="post_10_1" value="Very positive"> Very positive<br>
+          <input type="radio" class="post_task_survey" name="post_10_1" value="Positive"> Positive<br>
+          <input type="radio" class="post_task_survey" name="post_10_1" value="Neutral"> Neutral<br>
+          <input type="radio" class="post_task_survey" name="post_10_1" value="Not positive"> Not positive<br>
+          <input type="radio" class="post_task_survey" name="post_10_1" value="Very not positive"> Very not positive<br><br>
+          11. How engaged you feel throughout the conversation?<br>
+          <input type="radio" class="post_task_survey" name="post_11_1" value="Very engaged"> Very engaged<br>
+          <input type="radio" class="post_task_survey" name="post_11_1" value="Engaged"> Engaged<br>
+          <input type="radio" class="post_task_survey" name="post_11_1" value="Neutral"> Neutral<br>
+          <input type="radio" class="post_task_survey" name="post_11_1" value="Not engaged"> Not engaged<br>
+          <input type="radio" class="post_task_survey" name="post_11_1" value="Very not engaged"> Very not engaged<br><br>
+          12. Overall, what my partner said...<br>
+          <table>
+          <tr>
+            <th></th>
+            <th>Strongly disagree</th>
+            <th>Disagree</th>
+            <th>Neither agree nor disagree</th>
+            <th>Agree</th>
+            <th>Strongly agree</th>
+          </tr>
+          <tr>
+            <td>Is convincing</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_1" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_1" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_1" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_1" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_1" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Is important to me	</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_2" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_2" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_2" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_2" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_2" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Put thoughts in my mind about wanting to donate to Save the Children.</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_3" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_3" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_3" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_3" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_3" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Is something I agree with overall</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_4" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_4" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_4" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_4" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_4" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Exaggerated the negative aspects of making no donations.</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_5" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_5" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_5" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_5" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_5" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Tried to manipulate me</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_6" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_6" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_6" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_6" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_6" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Tried to pressure me</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_7" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_7" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_7" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_7" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_7" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Was dishonest</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_8" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_8" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_8" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_8" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_8" value="Strongly agree"><br></td>
+          </tr>
+          <tr>
+            <td>Is a strong reason for donating to Save the Children</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_9" value="Strongly disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_9" value="Disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_9" value="Neither agree nor disagree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_9" value="Agree"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_12_9" value="Strongly agree"><br></td>
+          </tr>
+          </table><br>
+          13. How do you feel right now?<br>
+          <table>
+          <tr>
+            <th></th>
+            <th>Very slightly or not at all</th>
+            <th>A little</th>
+            <th>Moderate</th>
+            <th>Quite a bit</th>
+            <th>Very much</th>
+          </tr>
+          <tr>
+            <td>Angry</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_1" value="Very slightly or not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_1" value="A little"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_1" value="Moderate"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_1" value="Quite a bit"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_1" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Guilty</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_2" value="Very slightly or not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_2" value="A little"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_2" value="Moderate"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_2" value="Quite a bit"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_2" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Enthusiastic</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_3" value="Very slightly or not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_3" value="A little"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_3" value="Moderate"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_3" value="Quite a bit"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_3" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Proud</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_4" value="Very slightly or not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_4" value="A little"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_4" value="Moderate"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_4" value="Quite a bit"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_4" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Inspired</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_5" value="Very slightly or not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_5" value="A little"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_5" value="Moderate"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_5" value="Quite a bit"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_5" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Ashamed</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_6" value="Very slightly or not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_6" value="A little"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_6" value="Moderate"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_6" value="Quite a bit"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_13_6" value="Very much"><br></td>
+          </tr>
+          </table><br>
+          14. To what extent is your position on donating to non-governmental organizations like Save the Children...<br>
+          <table>
+          <tr>
+            <th></th>
+            <th>Not at all</th>
+            <th>Slightly</th>
+            <th>Moderately</th>
+            <th>Much</th>
+            <th>Very much</th>
+          </tr>
+          <tr>
+            <td>A reflection of your core moral beliefs and convictions?</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_1" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_1" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_1" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_1" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_1" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Connected to your beliefs about fundamental right and wrong?</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_2" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_2" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_2" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_2" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_2" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Based on moral principle?</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_3" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_3" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_3" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_3" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_14_3" value="Very much"><br></td>
+          </tr>
+          </table><br>
+          15. To what extent do you think your partner is...<br>
+          <table>
+          <tr>
+            <th></th>
+            <th>Not at all</th>
+            <th>Slightly</th>
+            <th>Moderately</th>
+            <th>Much</th>
+            <th>Very much</th>
+          </tr>
+          <tr>
+            <td>Competent</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_1" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_1" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_1" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_1" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_1" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Confident</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_2" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_2" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_2" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_2" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_2" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Efficient</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_3" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_3" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_3" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_3" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_3" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Intelligent</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_4" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_4" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_4" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_4" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_4" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Friendly</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_5" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_5" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_5" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_5" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_5" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Well-intentioned</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_6" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_6" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_6" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_6" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_6" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Trustworthy</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_7" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_7" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_7" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_7" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_7" value="Very much"><br></td>
+          </tr>
+          <tr>
+            <td>Sincere</td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_8" value="Not at all"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_8" value="Slightly"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_8" value="Moderately"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_8" value="Much"><br></td>
+            <td><input type="checkbox" class="post_task_survey" name="post_15_8" value="Very much"><br></td>
+          </tr>
+          </table><br>
+          <input type="submit" id="enter_code" value="Submit" onclick="check_input()">
+        </div>
+        <div id="response-type-idle" class="response-type-module" style="display:none">
+        </div>
+        <div id="response-type-text-input" class="response-type-module" style="padding-left: 35px; padding-top: 30px; padding-bottom: 30px; padding-right: 35px; float: left; display:none">
+            <div style="height: 50px; width: 90%; display: flex; float: left; ">
+                <input id="id_text_input" type="text" style="width: 50%; height: 100%; float: left; font-size: 16px" class="form-control" value="" placeholder="Please enter here...">
+                <button class="btn btn-primary" style="width: 88px; height: 100%; font-size: 16px; float: left; margin-left: 15px; padding: 0px;" id="id_send_msg_button">Send</button>
+                <button class="btn btn-success" style="width: 88px; height: 100%; font-size: 16px; float: left; margin-left: 15px; padding: 0px; disabled: true; display:none" id="id_donation_button">Done</button>
+            </div>
+        </div>
+        <div id="response-type-done-donation" class="response-type-module-donation" style="padding-left: 35px; padding-top: 30px; padding-bottom: 30px; padding-right: 35px; float: left; display:none">
+          <span style="font-size: 20px"><b>Please indicate how much you would like to donate out of your payment in the donation tab below.</b></span><br>
+          <div class="container">
+            <div id="donation_info">I'd like to donate (out of my task payment)</div>
+            <input id="donation_input" type="text" value="">
+            <button id="donation_submit">Donate</button>
+          </div>
+          <div id="donation_note">Note: Your partner won't see this. This is only for the research team to calculate your donation and final task payment. You can enter 0 if you don't want to donate for now.</div>
+        </div>
+        <div id="response-type-done-wait" style="font-size: 30px; display:none">
+          Please wait for your partner to finish the post-survey and enter the donation amount. You will be taken to the next step to complete the HIT.
+          If this is taking more than 15 minutes, please email us with a screenshot of the page so that you may receive your bonus.
+        </div>
+        <div id="response-type-done" class="response-type-module" style="padding-left: 35px; padding-top: 30px; padding-bottom: 30px; padding-right: 35px; float: left; display:none">
+            <div id="disconnect-text" style="font-size: 20px; font-weight: bold; margin-bottom: 10px; display:none">
+              One of your partners disconnected in the middle of the HIT. We won't penalize you for their disconnect, but you did not complete enough of the task to receive the bonus payment. Please submit this HIT below.
+            </div>
+            <span id="inactive" style="font-size: 14pt;margin-right: 15px"></span>
+            <span id="done-complete" style="font-size: 15px; font-weight: bold; display: none">Thank you for completing the task. Please click "Done with this HIT" button below to finish this HIT.</span><br>
+              <button id="done-button" type="button" class="btn btn-primary btn-lg">
+                  <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Done with this HIT
+              </button>
+        </div>
+        <div id="timeout-text" style="font-size: 20px; margin: 20px; font-weight: bold; display:none">
+          You have been inactive for too long, leaving the other participant unable to complete the HIT. Thus this HIT has been expired and you have been considered disconnected.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script type="text/javascript">
+    var post_task_survey_done = false; // global bool for survey
+    function handle_new_message(new_message_id, message) {
+      var agent_id = message.id;
+      var message_text = message.text.replace(/(?:\r\n|\r|\n)/g, '<br />');
+      if (displayed_messages.indexOf(new_message_id) !== -1) {
+        // This message has already been seen and put up into the chat
+        log(new_message_id + ' was a repeat message', 1);
+        return;
+      }
+      log('New message, ' + new_message_id + ' from agent ' + agent_id, 1);
+      displayed_messages.push(new_message_id);
+      if (agent_id !== cur_agent_id) {
+        add_message_to_conversation(agent_id, message_text, false);
+      } else {
+        add_message_to_conversation(agent_id, message_text, true);
+      }
+      if ("persona_text" in message) {
+        var persona_text = message.persona_text.replace(/(?:\r\n|\r|\n)/g, '<br />');
+        $("span#task-persona").html('<span style=\"color:red;\"><strong>Please start the conversation.</strong></span><br><br><span style=\"color:#2e75b5; font-size:20px;\"><b>Communicator role task description:</b></span><br><br>' + persona_text + '<br><br>');
+        log(message.persona_text, 1);
+      }
+      if("exceed_min_turns" in message && message.exceed_min_turns){
+        $("button#id_donation_button").css("disabled", false);
+        $("button#id_donation_button").css("display", "");
+        $("input#id_text_input").css("width", "40%");
+        $(window).resize(window_resize);
+      }
+      if("donation_done" in message && message.donation_done){
+        $("input#id_text_input").css("display", "none");
+        $("div#waiting-for-message").css("display", "none");
+        $("div#survey-text").css("display", "block");
+        $("div#response-type-done-donation").css("display", "none");
+        $("div#response-type-text-input").css("display", "none");
+        $("div#right-top-pane").css("display", "none");
+        $("button#id_donation_button").css("display", "none");
+        $("button#id_done_button").css("disabled", true);
+        $("button#id_done_button").css("display", "none");
+        $("button#id_send_msg_button").css("display", "none");
+        $(window).resize(window_resize);
+      }
+      if("episode_done" in message && message.episode_done){
+        $("div#response-type-done").css("display", "");
+        $("div#waiting-for-message").css("display", "none");
+        $("div#response-type-done-wait").css("display", "none");
+        $(window).resize(window_resize);
+      }
+    }
+
+    $("button#id_donation_button").on('click', function () {
+        var text = "I am done with the chat and clicked the 'Done' button, thank you!";
+        if (!(text == '')) {
+            $("button#id_donation_button").css("disabled", true);
+            new_message_id = uuidv4();
+            send_packet(
+                TYPE_MESSAGE,
+                {text: text,
+                 id: cur_agent_id,
+                 message_id: new_message_id,
+                 donation_done: true,
+                 episode_done: false},
+                true,
+                true
+            );
+        }
+    });
+
+    // check only one box per group
+    $('input[type="checkbox"]').on('change', function() {
+      $('input[name="' + this.name + '"]').not(this).prop('checked', false);
+    });
+    $('input[type="radio"]').on('change', function() {
+      $('input[name="' + this.name + '"]').not(this).prop('checked', false);
+    });
+
+
+    // check if valid responses
+    function check_input() {
+      var r = $("input[type='radio'].post_task_survey");
+      var c = $("input[type='checkbox'].post_task_survey");
+      var age = document.getElementById('age').value
+
+      if (c.filter(":checked").length + r.filter(":checked").length == 36 && age > 0) { // 36 + 1 total questions
+        document.getElementById("survey-text").style.display = "none";
+        document.getElementById("enter_code").style.display = "none";
+        document.getElementById("response-type-done-donation").style.display = "block";
+      } else {
+        alert('Please finish the survey before you continue.');
+      }
+    }
+
+    $("button#donation_submit").on('click', function () {
+        var elem = document.getElementById("donation_input");
+
+        if (elem.value >= 0 && elem.value <= 2) {
+          $("button#id_donation_button").css("disabled", true);
+          new_message_id = uuidv4();
+          // Record post-task survey results
+          var map = new Map();
+          var age = document.getElementById('age').value
+          map['post_1_1'] = age
+          $('input[class="post_task_survey"]:checked').each(function() {
+            map[this.name] = this.value;
+          });
+          send_packet(
+            TYPE_MESSAGE,
+            {text:'',
+             id: cur_agent_id,
+             worker_id: worker_id,
+             donation_done: false,
+             episode_done: true,
+             donation_value: elem.value,
+             post_task_survey: map
+            },
+            true,
+            true
+          );
+          // $("div#response-type-done").css("display", "");
+          // $("span#done-complete").css("display", "");
+          $("div#response-type-done-donation").css("display", "none");
+          $("div#response-type-done-wait").css("display", "block");
+        } else {
+          alert('Please enter a donation amount between 0 and 2.');
+        }
+    });
+
+    // On window resize, ensure that the UI is properly displayed
+    function window_resize() {
+      log("The window was resized", 4);
+      // Set the text input width to match the bottom width minus space
+      // for the done button
+      $("input#id_text_input").width($("div#right-bottom-pane").width() - 210);
+      if(exceed_min_turns == true) {
+        $("input#id_text_input").width($("input#id_text_input").width() - 100);
+      }
+      // Set the chat window height to be the remainder after removing the
+      // height of the text pane
+      var left_height = $("div#left-pane").height();
+      var text_height = $("div#right-bottom-pane").outerHeight()
+      $("div#right-top-pane").height((left_height - text_height) - 20);
+    }
+</script>
+{% endblock %}
