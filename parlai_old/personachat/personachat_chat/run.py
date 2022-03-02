@@ -38,7 +38,8 @@ def main():
                            help='Which personas to load from personachat')
     argparser.add_argument('--revised', default=False, type='bool',
                            help='Whether to use revised personas')
-    argparser.add_argument('-rt', '--range_turn', default='10',
+    # this argument is the one actually setting the min turns (change default value)
+    argparser.add_argument('-rt', '--range_turn', default='2',
                            help='sample range of number of turns')
     argparser.add_argument('--personas-path', default=None,
                            help='specify path for personas data')
@@ -46,6 +47,9 @@ def main():
 
     directory_path = os.path.dirname(os.path.abspath(__file__))
     opt['task'] = os.path.basename(directory_path)
+
+    # set num of convos
+    opt['num_conversations'] = 1
 
     if not opt.get('personas_path'):
         opt['personas_path'] = argparser.parlai_home + '/parlai/mturk/personachat_chat/data'
@@ -129,9 +133,12 @@ def main():
             # Pay bonus
             if (world.convo_is_finished is True):
                 for ag in agents:
-                    if (ag.hit_is_complete):
-                        print("Completed the task successfully, paying bonus to", ag.worker_id)
-                        mturk_manager.pay_bonus(ag.worker_id, 1.7, ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
+                    if ((ag.hit_is_complete) & (ag.id == 'PERSON_1')):
+                        print("Completed the task successfully, paying bonus to persuader:", ag.worker_id)
+                        mturk_manager.pay_bonus(ag.worker_id, 2+float(world.persuadee_donation), ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
+                    else:
+                        print("Completed the task successfully, paying bonus to persuadee:", ag.worker_id)
+                        mturk_manager.pay_bonus(ag.worker_id, 2-float(world.persuadee_donation), ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
             else:
                 print("Did not complete the task. No bonus paid.")
 
