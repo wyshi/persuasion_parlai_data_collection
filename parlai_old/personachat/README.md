@@ -30,6 +30,7 @@ The default mturk hit multiplier is 1.5 and is used to ensure worker availibilit
 Examples:
 
 Run a task live with 3 conversations, a reward of $0.10, and with conversations having a min of 5 turns
+
 python run.py --live -r=.1 -rt=5
 
 Task configurations will print to the screen when execuing run.py.
