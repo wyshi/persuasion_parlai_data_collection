@@ -2,10 +2,11 @@ import pickle
 import re
 import os
 
-PKL_PATH = './dialogs_pkl'
-TXT_PATH = './dialogs_txt'
+PKL_PATH = os.getcwd() + '/dialogs_pkl'
+TXT_PATH = os.getcwd() + '/dialogs_txt'
 dir = os.listdir(PKL_PATH)
 
+# file may error if .files are present in dialogs.pkl
 for pkl in dir:
     # change to txt file
     base = os.path.splitext(pkl)[0]
