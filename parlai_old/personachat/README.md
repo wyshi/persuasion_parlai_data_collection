@@ -23,7 +23,7 @@ For a full list of command line options see run.py and parlai/core/params.py
 
 -rt:           Minimum number of turns that must pass before the chat can be completed, default = 10
 
-The number of hits that will launch is equal to num_conversations * num_agents_per_convo * 1.5
+The number of hits that will launch is equal to num_conversations * num_agents_per_convo * 1.5.
 This task involves two agents so num_agents_per_convo will always be 2. 
 The default mturk hit multiplier is 1.5 and is used to ensure worker availibility see parlai/mturk/core/mturk_manager.py for more details.
 
