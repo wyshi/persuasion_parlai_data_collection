@@ -13,15 +13,15 @@ To launch a mturk task using this package simply execute run.py in the personach
 Task configurations can be adjusted from the command line, below are some descriptions for useful command line arguments.
 For a full list of command line options see run.py and parlai/core/params.py
 
--nc           Number of conversations, default = 1
+-nc:           Number of conversations, default = 1
 
---unique      Enforce that no worker can work on your task twice
+--unique:      Enforce that no worker can work on your task twice
 
--r            Reward for each worker for finishing the conversation, default = .05
+-r:            Reward for each worker for finishing the conversation, default = .05
 
---live        Submit the HITs to MTurk live site, launches to the mturk sandbox by default
+--live:        Submit the HITs to MTurk live site, launches to the mturk sandbox by default
 
--rt           Minimum number of turns that must pass before the chat can be completed, default = 10
+-rt:           Minimum number of turns that must pass before the chat can be completed, default = 10
 
 The number of hits that will launch is equal to num_conversations * num_agents_per_convo * 1.5
 This task involves two agents so num_agents_per_convo will always be 2. 
