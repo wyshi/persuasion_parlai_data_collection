@@ -4,6 +4,8 @@
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
 import sys
+# package path
+sys.path.insert(0, '/Users/ryanshea/Documents/NLP_Research/persuasion_parlai_data_collection/parlai_old')
 from parlai.core.params import ParlaiParser
 from parlai.mturk.core.mturk_manager import MTurkManager
 from worlds import \
@@ -20,10 +22,6 @@ def main():
     argparser = ParlaiParser(False, False)
     argparser.add_parlai_data_path()
     argparser.add_mturk_args()
-    argparser.add_argument('-min_t', '--min_turns', default=10, type=int,
-                           help='minimum number of turns')
-    argparser.add_argument('-mt', '--max_turns', default=50, type=int,
-                           help='maximal number of chat turns')
     argparser.add_argument('-mx_rsp_time', '--max_resp_time', default=600,
                            type=int,
                            help='time limit for entering a dialog message')
@@ -38,8 +36,8 @@ def main():
                            help='Which personas to load from personachat')
     argparser.add_argument('--revised', default=False, type='bool',
                            help='Whether to use revised personas')
-    # this argument is the one actually setting the min turns (change default value)
-    argparser.add_argument('-rt', '--range_turn', default='2',
+    # this argument is the one actually setting the min turns
+    argparser.add_argument('-rt', '--range_turn', default='10',
                            help='sample range of number of turns')
     argparser.add_argument('--personas-path', default=None,
                            help='specify path for personas data')
@@ -47,9 +45,6 @@ def main():
 
     directory_path = os.path.dirname(os.path.abspath(__file__))
     opt['task'] = os.path.basename(directory_path)
-
-    # set num of convos
-    opt['num_conversations'] = 1
 
     if not opt.get('personas_path'):
         opt['personas_path'] = argparser.parlai_home + '/parlai/mturk/personachat_chat/data'
@@ -118,7 +113,6 @@ def main():
                 opt=opt,
                 agents=agents,
                 range_turn=[int(s) for s in opt['range_turn'].split(',')],
-                max_turn=opt['max_turns'],
                 max_resp_time=opt['max_resp_time'],
                 world_tag='conversation t_{}'.format(conv_idx)
             )
@@ -132,13 +126,16 @@ def main():
 
             # Pay bonus
             if (world.convo_is_finished is True):
+                # deal with float precision errors, can't pay a bonus with more than two decimal places
+                persuader_amt = float("{:.2f}".format(2+float(world.persuadee_donation)))
+                persuadee_amt = float("{:.2f}".format(2-float(world.persuadee_donation)))
                 for ag in agents:
-                    if ((ag.hit_is_complete) & (ag.id == 'PERSON_1')):
+                    if (ag.hit_is_complete) & (ag.id == 'PERSON_1'):
                         print("Completed the task successfully, paying bonus to persuader:", ag.worker_id)
-                        mturk_manager.pay_bonus(ag.worker_id, 2+float(world.persuadee_donation), ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
-                    else:
+                        mturk_manager.pay_bonus(ag.worker_id, persuader_amt, ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
+                    elif (ag.hit_is_complete) & (ag.id == 'PERSON_2') & (float(world.persuadee_donation) != 2):
                         print("Completed the task successfully, paying bonus to persuadee:", ag.worker_id)
-                        mturk_manager.pay_bonus(ag.worker_id, 2-float(world.persuadee_donation), ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
+                        mturk_manager.pay_bonus(ag.worker_id, persuadee_amt, ag.assignment_id, "Completed the task successfully!", ag.assignment_id)
             else:
                 print("Did not complete the task. No bonus paid.")
 
