@@ -1,4 +1,0 @@
-19:38:27,347 mturk INFO 
-You are going to allow workers from Amazon Mechanical Turk to be an agent in ParlAI.
-During this process, Internet connection is required, and you should turn off your computer's auto-sleep feature.
-19:38:27,347 mturk INFO Enough HITs will be launched over time up to a max of 1.5 times the amount requested until the desired number of conversations start.
