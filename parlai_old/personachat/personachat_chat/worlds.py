@@ -119,14 +119,13 @@ class PersonaProfileWorld(MTurkOnboardWorld):
 
 class PersonaChatWorld(MultiAgentDialogWorld):
     def __init__(self, opt, agents=None, shared=None,
-                 range_turn=10, max_turn=50,
+                 range_turn=10,
                  max_resp_time=600,
                  world_tag='NONE',
                  agent_timeout_shutdown=600):
         self.agents = agents
         self.turn_idx = 0
         self.range_turn = range_turn
-        self.max_turn = max_turn
         self.n_turn = self.range_turn
         self.dialog = []
         self.task_type = 'sandbox' if opt['is_sandbox'] else 'live'
