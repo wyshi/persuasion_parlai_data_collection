@@ -4,8 +4,6 @@
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
 import sys
-# package path
-sys.path.insert(0, '/Users/ryanshea/Documents/NLP_Research/persuasion_parlai_data_collection/parlai_old')
 from parlai.core.params import ParlaiParser
 from parlai.mturk.core.mturk_manager import MTurkManager
 from worlds import \
