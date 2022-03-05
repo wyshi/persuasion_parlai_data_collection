@@ -1,0 +1,13 @@
+PERSUADER (0): AE6ENO8RZL31X, 0
+PERSUADEE (1): A324JB25WK2ZVF, 0
+
+Number of turns: 2
+
+(0, 'hello')
+(1, 'hi')
+(0, 'how are you')
+(1, 'I am good')
+
+
+PERSUADER (0) word count: 4
+PERSUADEE (1) word count: 4
