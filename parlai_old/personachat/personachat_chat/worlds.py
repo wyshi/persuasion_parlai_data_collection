@@ -97,7 +97,7 @@ class PersonaProfileWorld(MTurkOnboardWorld):
             for pre in act['pre_task_survey']:
                 fields.append(act['pre_task_survey'][pre])
             data_path = DATA_DIR_PATH
-            with open(os.path.join(SURVEY_PATH,'pre_task_survey.csv'), 'a') as f:
+            with open(os.path.join(SURVEY_PATH,'pre_task_survey' + str(time.time()) + '.csv'), 'w') as f:
                 writer = csv.writer(f)
                 writer.writerow(fields)
         # timeout
@@ -205,7 +205,7 @@ class PersonaChatWorld(MultiAgentDialogWorld):
                         fields = [acts[idx]['worker_id']]
                         for post in acts[idx]['post_task_survey']:
                             fields.append(acts[idx]['post_task_survey'][post])
-                        with open(os.path.join(SURVEY_PATH,'post_task_survey.csv'), 'a') as f:
+                        with open(os.path.join(SURVEY_PATH,'post_task_survey' + str(time.time()) + '.csv'), 'w') as f:
                             writer = csv.writer(f)
                             writer.writerow(fields)
 
