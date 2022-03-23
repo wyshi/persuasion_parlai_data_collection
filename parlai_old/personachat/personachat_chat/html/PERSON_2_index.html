@@ -158,7 +158,7 @@ tr:nth-child(even) {
           <input type="radio" class="post_task_survey" name="post_6_1" value="Military"> Military<br>
           <input type="radio" class="post_task_survey" name="post_6_1" value="Retired"> Retired<br>
           <input type="radio" class="post_task_survey" name="post_6_1" value="Unable to work"> Unable to work<br><br>
-          7. Last year, that is in 2017, what was your total family income from all sources, before taxes?<br>
+          7. Last year, that is in 2021, what was your total family income from all sources, before taxes?<br>
           <input type="radio" class="post_task_survey" name="post_7_1" value="Less than $10,000"> Less than $10,000<br>
           <input type="radio" class="post_task_survey" name="post_7_1" value="$10,000 to $19,999"> $10,000 to $19,999<br>
           <input type="radio" class="post_task_survey" name="post_7_1" value="$20,000 to $29,999"> $20,000 to $29,999<br>
@@ -526,8 +526,8 @@ tr:nth-child(even) {
       if("donation_done" in message && message.donation_done){
         $("input#id_text_input").css("display", "none");
         $("div#waiting-for-message").css("display", "none");
-        $("div#survey-text").css("display", "block");
-        $("div#response-type-done-donation").css("display", "none");
+        $("div#response-type-done-donation").css("display", "block");
+        $("div#survey-text").css("display", "none");
         $("div#response-type-text-input").css("display", "none");
         $("div#right-top-pane").css("display", "none");
         $("button#id_donation_button").css("display", "none");
@@ -579,7 +579,8 @@ tr:nth-child(even) {
       if (c.filter(":checked").length + r.filter(":checked").length == 36 && age > 0) { // 36 + 1 total questions
         document.getElementById("survey-text").style.display = "none";
         document.getElementById("enter_code").style.display = "none";
-        document.getElementById("response-type-done-donation").style.display = "block";
+        send_results_packet();
+        $("div#response-type-done-wait").css("display", "block");
       } else {
         alert('Please finish the survey before you continue.');
       }
@@ -590,35 +591,43 @@ tr:nth-child(even) {
 
         if (elem.value >= 0 && elem.value <= 2) {
           $("button#id_donation_button").css("disabled", true);
-          new_message_id = uuidv4();
-          // Record post-task survey results
-          var map = new Map();
-          var age = document.getElementById('age').value
-          map['post_1_1'] = age
-          $('input[class="post_task_survey"]:checked').each(function() {
-            map[this.name] = this.value;
-          });
-          send_packet(
-            TYPE_MESSAGE,
-            {text:'',
-             id: cur_agent_id,
-             worker_id: worker_id,
-             donation_done: false,
-             episode_done: true,
-             donation_value: elem.value,
-             post_task_survey: map
-            },
-            true,
-            true
-          );
+          document.getElementById("survey-text").style.display = "block";
+          document.getElementById("response-type-done-donation").style.display = "none";
+          // send_results_packet()
           // $("div#response-type-done").css("display", "");
           // $("span#done-complete").css("display", "");
-          $("div#response-type-done-donation").css("display", "none");
-          $("div#response-type-done-wait").css("display", "block");
+          // $("div#response-type-done-donation").css("display", "none");
+          // $("div#response-type-done-wait").css("display", "block");
         } else {
           alert('Please enter a donation amount between 0 and 2.');
         }
     });
+
+    function send_results_packet() {
+      var elem = document.getElementById("donation_input");
+      new_message_id = uuidv4();
+      // Record post-task survey results
+      var map = new Map();
+      var age = document.getElementById('age').value
+      map['post_1_1'] = age
+      $('input[class="post_task_survey"]:checked').each(function() {
+        map[this.name] = this.value;
+      });
+      send_packet(
+        TYPE_MESSAGE,
+        {
+          text:'',
+          id: cur_agent_id,
+          worker_id: worker_id,
+          donation_done: false,
+          episode_done: true,
+          donation_value: elem.value,
+          post_task_survey: map
+        },
+        true,
+        true
+      );
+    }
 
     // On window resize, ensure that the UI is properly displayed
     function window_resize() {
