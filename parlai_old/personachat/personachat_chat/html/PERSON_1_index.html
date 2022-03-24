@@ -524,16 +524,15 @@ tr:nth-child(even) {
         $(window).resize(window_resize);
       }
       if("donation_done" in message && message.donation_done){
-        $("input#id_text_input").css("display", "none");
-        $("div#waiting-for-message").css("display", "none");
-        $("div#response-type-done-donation").css("display", "block");
-        $("div#survey-text").css("display", "none");
-        $("div#response-type-text-input").css("display", "none");
-        $("div#right-top-pane").css("display", "none");
         $("button#id_donation_button").css("display", "none");
-        $("button#id_done_button").css("disabled", true);
+        // $("button#id_donation_button").css("disabled", true);
+        $("div#response-type-done-donation").css("display", "block");
+        $("input#id_text_input").css("display", "none");
         $("button#id_done_button").css("display", "none");
+        $("button#id_done_button").css("disabled", true);
         $("button#id_send_msg_button").css("display", "none");
+        $("button#id_send_msg_button").css("disabled", true);
+        $("div#waiting-for-message").css("display", "none");
         $(window).resize(window_resize);
       }
       if("episode_done" in message && message.episode_done){
@@ -590,8 +589,9 @@ tr:nth-child(even) {
     $("button#donation_submit").on('click', function () {
         var elem = document.getElementById("donation_input");
 
-        if (elem.value >= 0 && elem.value <= 2) {
-          $("button#id_donation_button").css("disabled", true);
+        if (elem.value >= 0 && elem.value <= 2 && !(elem.value === "")) {
+          $("div#waiting-for-message").css("display", "none");
+          $("div#right-top-pane").css("display", "none");
           document.getElementById("survey-text").style.display = "block";
           document.getElementById("response-type-done-donation").style.display = "none";
           // send_results_packet();
